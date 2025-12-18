@@ -10,6 +10,7 @@ import { LocationManagement, Location } from './LocationManagement';
 import { SlotCapacityManagement } from './SlotCapacityManagement';
 import { TimeSlotOrganizer } from './TimeSlotOrganizer';
 import { QuadrantBatchView } from './QuadrantBatchView';
+import { getApiUrl, getWsUrl } from '../../../shared/config/api';
 
 // --- Types ---
 
@@ -620,7 +621,7 @@ export const PizzaFlowAdmin = () => {
   useEffect(() => {
     const loadAuditLogs = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/audit?limit=100');
+        const response = await fetch(getApiUrl('/audit?limit=100'));
         if (response.ok) {
           const logs = await response.json();
           setAuditLogs(logs);
@@ -655,7 +656,7 @@ export const PizzaFlowAdmin = () => {
     const loadInitialData = async () => {
       try {
         // Load orders
-        const ordersRes = await fetch('http://localhost:3001/api/orders');
+        const ordersRes = await fetch(getApiUrl('/orders'));
         const ordersData = await ordersRes.json();
         if (Array.isArray(ordersData)) {
           setOrders(ordersData);
@@ -663,7 +664,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load batches
         try {
-          const batchesRes = await fetch('http://localhost:3001/api/batches');
+          const batchesRes = await fetch(getApiUrl('/batches'));
           const batchesData = await batchesRes.json();
           if (Array.isArray(batchesData)) {
             setBatches(batchesData);
@@ -674,7 +675,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load riders
         try {
-          const ridersRes = await fetch('http://localhost:3001/api/riders');
+          const ridersRes = await fetch(getApiUrl('/riders'));
           const ridersData = await ridersRes.json();
           if (Array.isArray(ridersData)) {
             // Remove duplicates by ID
@@ -689,7 +690,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load menu items
         try {
-          const menuRes = await fetch('http://localhost:3001/api/menu/items');
+          const menuRes = await fetch(getApiUrl('/menu/items'));
           const menuData = await menuRes.json();
           if (Array.isArray(menuData) && menuData.length > 0) {
             // Normalizza gli ingredienti per ogni item
@@ -705,7 +706,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load menu categories
         try {
-          const categoriesRes = await fetch('http://localhost:3001/api/menu/categories');
+          const categoriesRes = await fetch(getApiUrl('/menu/categories'));
           const categoriesData = await categoriesRes.json();
           if (Array.isArray(categoriesData) && categoriesData.length > 0) {
             setMenuCategories(categoriesData);
@@ -716,7 +717,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load banners
         try {
-          const bannersRes = await fetch('http://localhost:3001/api/config/banners');
+          const bannersRes = await fetch(getApiUrl('/config/banners'));
           const bannersData = await bannersRes.json();
           if (Array.isArray(bannersData)) {
             setBanners(bannersData);
@@ -727,7 +728,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load locations
         try {
-          const locationsRes = await fetch('http://localhost:3001/api/config/locations');
+          const locationsRes = await fetch(getApiUrl('/config/locations'));
           const locationsData = await locationsRes.json();
           if (Array.isArray(locationsData) && locationsData.length > 0) {
             setLocations(locationsData);
@@ -738,7 +739,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load slot capacity
         try {
-          const slotCapacityRes = await fetch('http://localhost:3001/api/config/slot-capacity');
+          const slotCapacityRes = await fetch(getApiUrl('/config/slot-capacity'));
           const slotCapacityData = await slotCapacityRes.json();
           if (slotCapacityData) {
             setSlotCapacity(slotCapacityData);
@@ -749,7 +750,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load quadrants
         try {
-          const quadrantsRes = await fetch('http://localhost:3001/api/quadrants');
+          const quadrantsRes = await fetch(getApiUrl('/quadrants'));
           const quadrantsData = await quadrantsRes.json();
           if (Array.isArray(quadrantsData) && quadrantsData.length > 0) {
             setQuadrants(quadrantsData);
@@ -760,7 +761,7 @@ export const PizzaFlowAdmin = () => {
         
         // Load ingredients
         try {
-          const ingredientsRes = await fetch('http://localhost:3001/api/ingredients');
+          const ingredientsRes = await fetch(getApiUrl('/ingredients'));
           const ingredientsData = await ingredientsRes.json();
           if (Array.isArray(ingredientsData)) {
             setIngredients(ingredientsData);
@@ -775,7 +776,7 @@ export const PizzaFlowAdmin = () => {
     loadInitialData();
 
     // Connect to WebSocket
-    const ws = new WebSocket('ws://localhost:3001/ws');
+    const ws = new WebSocket(getWsUrl());
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -816,7 +817,7 @@ export const PizzaFlowAdmin = () => {
           setBatches(prev => prev.filter(b => b.id !== data.batchId));
         } else if (data.type === 'menu_updated') {
           // Menu updated - reload from server
-          fetch('http://localhost:3001/api/menu/items')
+          fetch(getApiUrl('/menu/items')
             .then(res => res.json())
             .then(items => {
               if (Array.isArray(items) && items.length > 0) {
@@ -831,7 +832,7 @@ export const PizzaFlowAdmin = () => {
             .catch(err => console.error('Error reloading menu:', err));
         } else if (data.type === 'categories_updated') {
           // Categories updated - reload from server
-          fetch('http://localhost:3001/api/menu/categories')
+          fetch(getApiUrl('/menu/categories')
             .then(res => res.json())
             .then(categories => {
               if (Array.isArray(categories) && categories.length > 0) {
@@ -841,7 +842,7 @@ export const PizzaFlowAdmin = () => {
             .catch(err => console.error('Error reloading categories:', err));
         } else if (data.type === 'quadrants_updated') {
           // Quadrants updated - reload from server
-          fetch('http://localhost:3001/api/quadrants')
+          fetch(getApiUrl('/quadrants')
             .then(res => res.json())
             .then(quadrantsData => {
               if (Array.isArray(quadrantsData) && quadrantsData.length > 0) {
@@ -851,7 +852,7 @@ export const PizzaFlowAdmin = () => {
             .catch(err => console.error('Error reloading quadrants:', err));
         } else if (data.type === 'locations_updated') {
           // Locations updated - reload from server
-          fetch('http://localhost:3001/api/config/locations')
+          fetch(getApiUrl('/config/locations')
             .then(res => res.json())
             .then(locationsData => {
               if (Array.isArray(locationsData) && locationsData.length > 0) {
@@ -1111,7 +1112,7 @@ export const PizzaFlowAdmin = () => {
       
       if (existingIndex >= 0) {
         // Update existing item
-        const response = await fetch(`http://localhost:3001/api/menu/items/${editingMenuItem.id}`, {
+        const response = await fetch(getApiUrl(`/menu/items/${editingMenuItem.id}`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedItem)
@@ -1132,7 +1133,7 @@ export const PizzaFlowAdmin = () => {
         setMenu(menu.map(m => m.id === editingMenuItem.id ? normalizedSavedItem : m));
       } else {
         // Create new item
-        const response = await fetch('http://localhost:3001/api/menu/items', {
+        const response = await fetch(getApiUrl('/menu/items'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedItem)
@@ -1164,7 +1165,7 @@ export const PizzaFlowAdmin = () => {
   const handleDeleteMenuItem = async (id: number) => {
     if (confirm('Sei sicuro di voler eliminare questo elemento?')) {
       try {
-        await fetch(`http://localhost:3001/api/menu/items/${id}`, {
+        await fetch(getApiUrl(`/menu/items/${id}`), {
           method: 'DELETE'
         });
         setMenu(menu.filter(m => m.id !== id));
@@ -1185,7 +1186,7 @@ export const PizzaFlowAdmin = () => {
     }
     
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+      const response = await fetch(getApiUrl(`/orders/${orderId}`, {
         method: 'DELETE'
       });
       
@@ -1205,7 +1206,7 @@ export const PizzaFlowAdmin = () => {
     if (!editingOrder) return;
     try {
       // Update order via API
-      const response = await fetch(`http://localhost:3001/api/orders/${editingOrder.id}`, {
+      const response = await fetch(getApiUrl(`/orders/${editingOrder.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingOrder)
@@ -1238,7 +1239,7 @@ export const PizzaFlowAdmin = () => {
   const handleAssignRiderToOrder = async (orderId: string, riderId: string) => {
     try {
       // Assign rider via API
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/assign`, {
+      const response = await fetch(getApiUrl(`/orders/${orderId}/assign`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ riderId })
@@ -1302,7 +1303,7 @@ export const PizzaFlowAdmin = () => {
       
       if (existingIndex >= 0) {
         // Update existing banner
-        const response = await fetch(`http://localhost:3001/api/config/banners/${editingBanner.id}`, {
+        const response = await fetch(getApiUrl(`/config/banners/${editingBanner.id}`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedBanner)
@@ -1311,7 +1312,7 @@ export const PizzaFlowAdmin = () => {
         setBanners(banners.map(b => b.id === editingBanner.id ? savedBanner : b));
       } else {
         // Create new banner
-        const response = await fetch('http://localhost:3001/api/config/banners', {
+        const response = await fetch(getApiUrl('/config/banners'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedBanner)
@@ -1338,7 +1339,7 @@ export const PizzaFlowAdmin = () => {
   const handleDeleteBanner = async (id: string) => {
     if (confirm('Sei sicuro di voler eliminare questo avviso?')) {
       try {
-        await fetch(`http://localhost:3001/api/config/banners/${id}`, {
+        await fetch(getApiUrl(`/config/banners/${id}`), {
           method: 'DELETE'
         });
         setBanners(banners.filter(b => b.id !== id));
@@ -1354,7 +1355,7 @@ export const PizzaFlowAdmin = () => {
     
     try {
       const updatedBanner = { ...banner, active: !banner.active };
-      await fetch(`http://localhost:3001/api/config/banners/${id}`, {
+      await fetch(getApiUrl(`/config/banners/${id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedBanner)
@@ -1399,7 +1400,7 @@ export const PizzaFlowAdmin = () => {
       
       if (existingIndex >= 0) {
         // Update existing category
-        const response = await fetch(`http://localhost:3001/api/menu/categories/${editingCategory.id}`, {
+        const response = await fetch(getApiUrl(`/menu/categories/${editingCategory.id}`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedCategory)
@@ -1411,7 +1412,7 @@ export const PizzaFlowAdmin = () => {
         setMenuCategories(menuCategories.map(c => c.id === editingCategory.id ? savedCategory : c));
       } else {
         // Create new category
-        const response = await fetch('http://localhost:3001/api/menu/categories', {
+        const response = await fetch(getApiUrl('/menu/categories'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedCategory)
@@ -1434,7 +1435,7 @@ export const PizzaFlowAdmin = () => {
   const handleDeleteCategory = async (id: string) => {
     if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
       try {
-        await fetch(`http://localhost:3001/api/menu/categories/${id}`, {
+        await fetch(getApiUrl(`/menu/categories/${id}`, {
           method: 'DELETE'
         });
         setMenuCategories(menuCategories.filter(c => c.id !== id));
@@ -1447,7 +1448,7 @@ export const PizzaFlowAdmin = () => {
   
   const handleSaveLocation = async (newLocations: Location[]) => {
     try {
-      await fetch('http://localhost:3001/api/config/locations', {
+      await fetch(getApiUrl('/config/locations'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newLocations)
@@ -1465,7 +1466,7 @@ export const PizzaFlowAdmin = () => {
     
     try {
       const newStatus = rider.status === 'offline' ? 'available' : 'offline';
-      const response = await fetch(`http://localhost:3001/api/riders/${riderId}/status`, {
+      const response = await fetch(getApiUrl(`/riders/${riderId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -1492,7 +1493,7 @@ export const PizzaFlowAdmin = () => {
   useEffect(() => {
     const loadDailyPerformance = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/daily-performance');
+        const response = await fetch(getApiUrl('/daily-performance');
         if (response.ok) {
           const data = await response.json();
           setDailyPerformance(data);
@@ -1521,7 +1522,7 @@ export const PizzaFlowAdmin = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/daily-performance', {
+      const response = await fetch(getApiUrl('/daily-performance'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(performance)
@@ -1554,7 +1555,7 @@ export const PizzaFlowAdmin = () => {
         quadrante_id: orderData.quadrante_id
       };
       
-      const response = await fetch('http://localhost:3001/api/orders', {
+      const response = await fetch(getApiUrl('/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload)
@@ -1589,7 +1590,7 @@ export const PizzaFlowAdmin = () => {
   // Batch management handlers
   const handleUpdateBatch = async (batchId: string, updates: Partial<Batch>) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/batches/${batchId}`, {
+      const response = await fetch(getApiUrl(`/batches/${batchId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates)
@@ -1607,7 +1608,7 @@ export const PizzaFlowAdmin = () => {
   };
   const handleCreateBatch = async (batch: Omit<Batch, 'id'>) => {
     try {
-      const response = await fetch('http://localhost:3001/api/batches', {
+      const response = await fetch(getApiUrl('/batches'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(batch)
@@ -1634,7 +1635,7 @@ export const PizzaFlowAdmin = () => {
             try {
               const order = orders.find(o => o.id === orderId);
               if (order) {
-                await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+                await fetch(getApiUrl(`/orders/${orderId}`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ ...order, batchId: undefined, riderId: undefined })
@@ -1647,7 +1648,7 @@ export const PizzaFlowAdmin = () => {
         }
         
         // Delete batch via API
-        await fetch(`http://localhost:3001/api/batches/${batchId}`, {
+        await fetch(getApiUrl(`/batches/${batchId}`, {
           method: 'DELETE'
         });
         
@@ -1690,7 +1691,7 @@ export const PizzaFlowAdmin = () => {
       
       // Update batch via API
       try {
-        await fetch(`http://localhost:3001/api/batches/${batchId}`, {
+        await fetch(getApiUrl(`/batches/${batchId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updatedBatch)
@@ -1705,7 +1706,7 @@ export const PizzaFlowAdmin = () => {
     // If batch has a rider assigned, assign order to rider
     if (batch.fattorino_id) {
       try {
-        await fetch(`http://localhost:3001/api/orders/${orderId}/assign`, {
+        await fetch(getApiUrl(`/orders/${orderId}/assign`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ riderId: batch.fattorino_id })
@@ -1723,7 +1724,7 @@ export const PizzaFlowAdmin = () => {
         const batch = batches.find(b => b.id === order.batchId);
         
         // Update order via API
-        await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+        await fetch(getApiUrl(`/orders/${orderId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...order, batchId: undefined, riderId: undefined })
@@ -1735,7 +1736,7 @@ export const PizzaFlowAdmin = () => {
             ...batch,
             orders: batch.orders.filter(oid => oid !== orderId)
           };
-          await fetch(`http://localhost:3001/api/batches/${batch.id}`, {
+          await fetch(getApiUrl(`/batches/${batch.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedBatch)
@@ -1786,7 +1787,7 @@ export const PizzaFlowAdmin = () => {
     const handleCompletePayment = async (orderId: string, paymentMethod: PaymentMethod) => {
       try {
         // Update order status to delivered and mark as prepaid
-        const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+        const response = await fetch(getApiUrl(`/orders/${orderId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -1827,7 +1828,7 @@ export const PizzaFlowAdmin = () => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return;
         
-        const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+        const response = await fetch(getApiUrl(`/orders/${orderId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -2369,7 +2370,7 @@ export const PizzaFlowAdmin = () => {
     const handleAddIngredient = async () => {
       if (!newIngredientName.trim()) return;
       try {
-        const response = await fetch('http://localhost:3001/api/ingredients', {
+        const response = await fetch(getApiUrl('/ingredients'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: newIngredientName.trim() })
@@ -2386,7 +2387,7 @@ export const PizzaFlowAdmin = () => {
     const handleDeleteIngredient = async (id: string) => {
       if (!confirm('Sei sicuro di voler eliminare questo ingrediente?')) return;
       try {
-        const response = await fetch(`http://localhost:3001/api/ingredients/${id}`, {
+        const response = await fetch(getApiUrl(`/ingredients/${id}`, {
           method: 'DELETE'
         });
         if (response.ok) {
@@ -2400,7 +2401,7 @@ export const PizzaFlowAdmin = () => {
     const handleUpdateIngredient = async (id: string) => {
       if (!editingIngredientName.trim()) return;
       try {
-        const response = await fetch(`http://localhost:3001/api/ingredients/${id}`, {
+        const response = await fetch(getApiUrl(`/ingredients/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: editingIngredientName.trim() })
@@ -4117,7 +4118,7 @@ export const PizzaFlowAdmin = () => {
                                 totalRevenue: parseFloat(newRevenue) || 0
                               };
                               try {
-                                const response = await fetch('http://localhost:3001/api/daily-performance', {
+                                const response = await fetch(getApiUrl('/daily-performance'), {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify(updated)
@@ -4140,7 +4141,7 @@ export const PizzaFlowAdmin = () => {
                           onClick={async () => {
                             if (confirm('Eliminare la prestazione di oggi?')) {
                               try {
-                                const response = await fetch(`http://localhost:3001/api/daily-performance/${perf.date}`, {
+                                const response = await fetch(getApiUrl(`/daily-performance/${perf.date}`, {
                                   method: 'DELETE'
                                 });
                                 if (response.ok) {
@@ -4214,7 +4215,7 @@ export const PizzaFlowAdmin = () => {
                   slots: [...slotCapacity.slots, newSlot]
                 };
                 try {
-                  await fetch('http://localhost:3001/api/config/slot-capacity', {
+                  await fetch(getApiUrl('/config/slot-capacity'), {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newCapacity)
@@ -4258,7 +4259,7 @@ export const PizzaFlowAdmin = () => {
                           slots: slotCapacity.slots.filter((_, i) => i !== index)
                         };
                         try {
-                          await fetch('http://localhost:3001/api/config/slot-capacity', {
+                          await fetch(getApiUrl('/config/slot-capacity'), {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(newCapacity)
@@ -4324,7 +4325,7 @@ export const PizzaFlowAdmin = () => {
                         } : s)
                       };
                       try {
-                        await fetch('http://localhost:3001/api/config/slot-capacity', {
+                        await fetch(getApiUrl('/config/slot-capacity'), {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(newCapacity)
@@ -4485,7 +4486,7 @@ export const PizzaFlowAdmin = () => {
                 try {
                   // Save to API (if we have a location ID, update, otherwise create)
                   // For now, we'll save the entire locations array
-                  await fetch('http://localhost:3001/api/config/locations', {
+                  await fetch(getApiUrl('/config/locations'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ locations: newLocations })
@@ -4503,7 +4504,7 @@ export const PizzaFlowAdmin = () => {
                 slots: updatedSlots
               };
               try {
-                await fetch('http://localhost:3001/api/config/slot-capacity', {
+                await fetch(getApiUrl('/config/slot-capacity'), {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(newCapacity)
@@ -4519,7 +4520,7 @@ export const PizzaFlowAdmin = () => {
                 globalMaxCapacity: capacity
               };
               try {
-                await fetch('http://localhost:3001/api/config/slot-capacity', {
+                await fetch(getApiUrl('/config/slot-capacity'), {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(newCapacity)

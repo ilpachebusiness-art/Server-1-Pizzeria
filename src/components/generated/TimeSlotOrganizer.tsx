@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Clock, Package, Bike, AlertCircle, ChevronDown, ChevronUp, MapPin, User, Phone, CheckCircle, TrendingUp, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiUrl } from '../../../shared/config/api';
 interface Order {
   id: string;
   customer: {
@@ -369,7 +370,7 @@ export const TimeSlotOrganizer: React.FC<TimeSlotOrganizerProps> = ({
                                                 await onAssignRider(order.id, riderId);
                                               } else {
                                                 try {
-                                                  const response = await fetch(`http://localhost:3001/api/orders/${order.id}/assign`, {
+                                                  const response = await fetch(`getApiUrl(`/orders/${order.id}/assign`)`, {
                                                     method: 'PATCH',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({ riderId })

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Map, Plus, Edit2, Trash2, X, Save, MapPin, Link2, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quadrant } from './QuadrantTypes';
+import { getApiUrl } from '../../../shared/config/api';
 interface Location {
   paese: string;
   vie: string[];
@@ -71,7 +72,7 @@ export const QuadrantManagement: React.FC<QuadrantManagementProps> = ({
     
     // Save to server
     try {
-      await fetch('http://localhost:3001/api/quadrants', {
+      await fetch('getApiUrl('/quadrants')', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newQuadrants)
@@ -94,7 +95,7 @@ export const QuadrantManagement: React.FC<QuadrantManagementProps> = ({
       
       // Save to server
       try {
-        await fetch(`http://localhost:3001/api/quadrants/${id}`, {
+        await fetch(`getApiUrl('/quadrants')/${id}`, {
           method: 'DELETE'
         });
       } catch (error) {
@@ -144,7 +145,7 @@ export const QuadrantManagement: React.FC<QuadrantManagementProps> = ({
     
     // Save to server
     try {
-      await fetch('http://localhost:3001/api/quadrants', {
+      await fetch('getApiUrl('/quadrants')', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newQuadrants)

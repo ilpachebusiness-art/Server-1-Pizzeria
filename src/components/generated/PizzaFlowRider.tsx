@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Bike, MapPin, Phone, Package, DollarSign, Clock, Navigation, CheckCircle, AlertCircle, TrendingUp, CreditCard, Pizza, ArrowUp, ArrowDown, GripVertical, AlertTriangle, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import { getApiUrl, getWsUrl } from '../../../shared/config/api';
 
 // --- Types ---
 
@@ -295,7 +296,7 @@ export const PizzaFlowRider = () => {
     // Load rider info and initial orders
     const loadRiderInfo = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/riders/${riderId}`);
+        const res = await fetch(getApiUrl(`/riders/${riderId}`));
         if (res.ok) {
           const data = await res.json();
           if (data) {
@@ -305,7 +306,7 @@ export const PizzaFlowRider = () => {
         } else if (res.status === 404) {
           // Rider doesn't exist, create it
           try {
-            const createRes = await fetch('http://localhost:3001/api/riders', {
+            const createRes = await fetch(getApiUrl('/riders'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -330,7 +331,7 @@ export const PizzaFlowRider = () => {
     
     const loadOrders = async () => {
       try {
-        const res = await fetch(`http://localhost:3001/api/orders/rider/${riderId}`);
+        const res = await fetch(getApiUrl(`/orders/rider/${riderId}`));
         const data = await res.json();
         if (Array.isArray(data)) {
           // Separate active and completed orders
@@ -348,7 +349,7 @@ export const PizzaFlowRider = () => {
     loadOrders();
 
     // Connect to WebSocket
-    const ws = new WebSocket('ws://localhost:3001/ws');
+    const ws = new WebSocket(getWsUrl());
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -427,7 +428,7 @@ export const PizzaFlowRider = () => {
     
     try {
       // Update order status to delivered via API
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/status`, {
+      const response = await fetch(getApiUrl(`/orders/${orderId}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'delivered' })
@@ -448,7 +449,7 @@ export const PizzaFlowRider = () => {
     const newStatus = riderStatus === 'offline' ? 'available' : 'offline';
     
     try {
-      const response = await fetch(`http://localhost:3001/api/riders/${riderId}/status`, {
+      const response = await fetch(getApiUrl(`/riders/${riderId}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -461,7 +462,7 @@ export const PizzaFlowRider = () => {
         // Se il fattorino non esiste, crealo
         if (response.status === 404) {
           try {
-            const createResponse = await fetch('http://localhost:3001/api/riders', {
+            const createResponse = await fetch(getApiUrl('/riders'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

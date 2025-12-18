@@ -5,6 +5,7 @@ import { ShoppingCart, MapPin, Clock, CreditCard, Phone, User, Home, Search, Che
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quadrant, detectQuadrantFromStreet, calculateSlotAvailability } from './QuadrantTypes';
 import { apiClient } from '../../../shared/api/client';
+import { getApiUrl, getWsUrl } from '../../../shared/config/api';
 
 // --- Types ---
 
@@ -495,11 +496,11 @@ export const PizzaFlowCustomer = () => {
     const loadMenuData = async () => {
       try {
         const [itemsResponse, categoriesResponse, slotCapacityResponse, bannersResponse, ingredientsResponse] = await Promise.all([
-          fetch('http://localhost:3001/api/menu/items'),
-          fetch('http://localhost:3001/api/menu/categories'),
-          fetch('http://localhost:3001/api/config/slot-capacity'),
-          fetch('http://localhost:3001/api/config/banners'),
-          fetch('http://localhost:3001/api/ingredients')
+          fetch(getApiUrl('/menu/items')),
+          fetch(getApiUrl('/menu/categories')),
+          fetch(getApiUrl('/config/slot-capacity')),
+          fetch(getApiUrl('/config/banners')),
+          fetch(getApiUrl('/ingredients'))
         ]);
         
         // Carica items e categorie in parallelo
@@ -611,7 +612,7 @@ export const PizzaFlowCustomer = () => {
         
         // Load locations
         try {
-          const locationsRes = await fetch('http://localhost:3001/api/config/locations');
+          const locationsRes = await fetch(getApiUrl('/config/locations'));
           if (locationsRes.ok) {
             const locationsData = await locationsRes.json();
             if (Array.isArray(locationsData) && locationsData.length > 0) {
@@ -633,7 +634,7 @@ export const PizzaFlowCustomer = () => {
         
         // Load quadrants
         try {
-          const quadrantsRes = await fetch('http://localhost:3001/api/quadrants');
+          const quadrantsRes = await fetch(getApiUrl('/quadrants'));
           if (quadrantsRes.ok) {
             const quadrantsData = await quadrantsRes.json();
             if (Array.isArray(quadrantsData) && quadrantsData.length > 0) {
@@ -1010,7 +1011,7 @@ export const PizzaFlowCustomer = () => {
 
   // WebSocket for real-time menu updates
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001/ws');
+    const ws = new WebSocket(getWsUrl());
     
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: 'subscribe', role: 'customer' }));
@@ -1023,7 +1024,7 @@ export const PizzaFlowCustomer = () => {
           // Menu updated - reload menu items from server
           console.log('📡 Menu aggiornato via WebSocket, ricarico dal server...');
           try {
-            const response = await fetch('http://localhost:3001/api/menu/items');
+            const response = await fetch(getApiUrl('/menu/items'));
             if (response.ok) {
               const items = await response.json();
               // Normalizza gli ingredienti per ogni item - assicurati che siano sempre array di oggetti con id e name
@@ -1068,7 +1069,7 @@ export const PizzaFlowCustomer = () => {
           // Categories updated - reload categories
           console.log('Categorie aggiornate, ricarico dal server...');
           try {
-            const response = await fetch('http://localhost:3001/api/menu/categories');
+            const response = await fetch(getApiUrl('/menu/categories'));
             if (response.ok) {
               const categories = await response.json();
               // Aggiorna sempre con i dati dal server
@@ -1101,7 +1102,7 @@ export const PizzaFlowCustomer = () => {
           // Slots updated - reload slot capacity from server
           console.log('Slot aggiornati, ricarico dal server...');
           try {
-            const response = await fetch('http://localhost:3001/api/config/slot-capacity');
+            const response = await fetch(getApiUrl('/config/slot-capacity'));
             if (response.ok) {
               const capacity = await response.json();
               setSlotCapacity(capacity);
