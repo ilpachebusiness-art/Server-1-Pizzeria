@@ -10,9 +10,9 @@ services:
       - key: PORT
         value: 10000
       - key: JWT_SECRET
-        generateValue: true
+        value: SYxVe6wkZDKy5MuNDg0U4jyfa2pJm9yPeafdUlGQU/M=
       - key: ALLOWED_ORIGINS
         value: "*"
     healthCheckPath: /health
-    plan: starter
+    plan: free
 
