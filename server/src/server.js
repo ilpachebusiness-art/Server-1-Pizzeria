@@ -111,30 +111,68 @@ app.use((req, res) => {
 // Initialize persistence and start server
 async function startServer() {
   try {
-    // Initialize data files
-    await initializeFiles();
+    console.log('🚀 Starting PizzaFlow Server...');
+    console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔌 Port: ${PORT}`);
     
-    // Load initial data for stores
-    const { menuStore, ordersStore } = await import('./models/stores.js');
-    const { auditLogStore } = await import('./models/auditLog.js');
-    await menuStore.loadData();
-    await ordersStore.loadData();
-    await auditLogStore.loadData();
-    
-    // Load quadrants data on startup
-    const quadrantsData = await loadFromFile('quadrants');
-    if (quadrantsData && Array.isArray(quadrantsData)) {
-      console.log(`📦 Loaded ${quadrantsData.length} quadrants on startup`);
+    // Initialize data files (non bloccare se fallisce)
+    try {
+      await initializeFiles();
+      console.log('✅ Data files initialized');
+    } catch (error) {
+      console.error('⚠️  Warning: Failed to initialize data files:', error.message);
+      console.log('⚠️  Server will continue with in-memory storage');
     }
     
-    server.listen(PORT, () => {
-      console.log(`🚀 PizzaFlow Server running on http://localhost:${PORT}`);
-      console.log(`📡 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔌 WebSocket server: ws://localhost:${PORT}/ws`);
+    // Load initial data for stores (non bloccare se fallisce)
+    try {
+      const { menuStore, ordersStore } = await import('./models/stores.js');
+      const { auditLogStore } = await import('./models/auditLog.js');
+      await menuStore.loadData();
+      await ordersStore.loadData();
+      await auditLogStore.loadData();
+      console.log('✅ Stores loaded');
+    } catch (error) {
+      console.error('⚠️  Warning: Failed to load stores:', error.message);
+      console.log('⚠️  Server will continue with empty stores');
+    }
+    
+    // Load quadrants data on startup (non bloccare se fallisce)
+    try {
+      const quadrantsData = await loadFromFile('quadrants');
+      if (quadrantsData && Array.isArray(quadrantsData)) {
+        console.log(`📦 Loaded ${quadrantsData.length} quadrants on startup`);
+      }
+    } catch (error) {
+      console.log('ℹ️  No quadrants data loaded (using defaults)');
+    }
+    
+    // Start server
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('✅ ============================================');
+      console.log(`🚀 PizzaFlow Server running on port ${PORT}`);
+      console.log(`📡 Health check: http://0.0.0.0:${PORT}/health`);
+      console.log(`🔌 WebSocket server: ws://0.0.0.0:${PORT}/ws`);
       console.log(`💾 Data persistence: server/data/`);
+      console.log('✅ ============================================');
+      console.log('');
     });
+    
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('❌ Server error:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use`);
+        process.exit(1);
+      } else {
+        throw error;
+      }
+    });
+    
   } catch (error) {
     console.error('❌ Error starting server:', error);
+    console.error('Stack:', error.stack);
     process.exit(1);
   }
 }

@@ -13,10 +13,17 @@ async function ensureDataDir() {
   try {
     await fs.access(DATA_DIR);
     console.log(`📁 Data directory exists: ${DATA_DIR}`);
-  } catch {
+  } catch (error) {
     console.log(`📁 Creating data directory: ${DATA_DIR}`);
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    console.log(`✅ Created data directory: ${DATA_DIR}`);
+    try {
+      await fs.mkdir(DATA_DIR, { recursive: true });
+      console.log(`✅ Created data directory: ${DATA_DIR}`);
+    } catch (mkdirError) {
+      console.error(`❌ Failed to create data directory: ${mkdirError.message}`);
+      // Non bloccare l'avvio se non riesce a creare la directory
+      // Su Railway potrebbe essere un problema di permessi, ma il server può funzionare
+      throw mkdirError;
+    }
   }
 }
 
@@ -82,19 +89,29 @@ export async function loadFromFile(key) {
       console.log(`✅ Loaded ${key} from ${filePath}`);
       return parsed;
     } catch (error) {
-      // File non esiste ancora, restituisci null
-      console.log(`ℹ️  File ${filePath} does not exist yet, using defaults`);
+      // File non esiste ancora, restituisci null (non è un errore)
+      if (error.code === 'ENOENT') {
+        console.log(`ℹ️  File ${filePath} does not exist yet, using defaults`);
+      } else {
+        console.error(`⚠️  Error reading ${key}:`, error.message);
+      }
       return null;
     }
   } catch (error) {
-    console.error(`❌ Error loading ${key}:`, error);
+    // Se non riesce a creare la directory, restituisci null invece di crashare
+    console.error(`⚠️  Error loading ${key}:`, error.message);
     return null;
   }
 }
 
 // Inizializza i file se non esistono
 export async function initializeFiles() {
-  await ensureDataDir();
+  try {
+    await ensureDataDir();
+  } catch (error) {
+    console.error(`❌ Cannot create data directory: ${error.message}`);
+    throw error;
+  }
   
   // Inizializza menu.json se non esiste
   try {
@@ -106,7 +123,7 @@ export async function initializeFiles() {
     if (saved) {
       console.log(`✅ Created menu.json`);
     } else {
-      console.error(`❌ Failed to create menu.json`);
+      console.error(`⚠️  Failed to create menu.json (continuing anyway)`);
     }
   }
   
