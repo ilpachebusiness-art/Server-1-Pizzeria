@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: pizzaflow-server
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "*"
+    healthCheckPath: /health
+    plan: starter
+
