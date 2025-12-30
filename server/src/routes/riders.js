@@ -26,7 +26,7 @@ router.get('/available', authenticateToken, requireRole('admin'), (req, res) => 
   }
 });
 
-// Get connected riders (Admin only) - MUST be before /:id route
+// Get connected riders (Admin only) - MUST be before /:id route to avoid conflicts
 router.get('/connected', (req, res) => {
   try {
     const connected = getConnectedRiders();
