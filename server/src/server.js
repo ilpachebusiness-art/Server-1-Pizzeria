@@ -18,6 +18,8 @@ import auditRouter from './routes/audit.js';
 import quadrantsRouter from './routes/quadrants.js';
 import dailyPerformanceRouter from './routes/dailyPerformance.js';
 import ingredientsRouter from './routes/ingredients.js';
+import riderInvitesRouter from './routes/rider-invites.js';
+import riderInvitePageRouter from './routes/rider-invite-page.js';
 
 // Import WebSocket
 import { initializeWebSocket, broadcastToAdmins, broadcastToRiders } from './websocket.js';
@@ -93,6 +95,8 @@ app.use('/api/audit', auditRouter);
 app.use('/api/quadrants', quadrantsRouter);
 app.use('/api/daily-performance', dailyPerformanceRouter);
 app.use('/api/ingredients', ingredientsRouter);
+app.use('/api/rider-invites', riderInvitesRouter);
+app.use('/rider-invite', riderInvitePageRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

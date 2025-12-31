@@ -37,7 +37,8 @@ const FILES = {
   quadrants: join(DATA_DIR, 'quadrants.json'),
   orders: join(DATA_DIR, 'orders.json'),
   ingredients: join(DATA_DIR, 'ingredients.json'),
-  dailyPerformance: join(DATA_DIR, 'dailyPerformance.json')
+  dailyPerformance: join(DATA_DIR, 'dailyPerformance.json'),
+  riderInvites: join(DATA_DIR, 'riderInvites.json')
 };
 
 // Salva dati in un file
@@ -187,6 +188,13 @@ export async function initializeFiles() {
     await fs.access(FILES.ingredients);
   } catch {
     await saveToFile('ingredients', []);
+  }
+  
+  // Inizializza riderInvites.json se non esiste
+  try {
+    await fs.access(FILES.riderInvites);
+  } catch {
+    await saveToFile('riderInvites', []);
   }
 }
 
