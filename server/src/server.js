@@ -38,6 +38,12 @@ const PORT = process.env.PORT || 3001;
 // Initialize WebSocket
 initializeWebSocket(server);
 
+// Handle WebSocket upgrade requests (required for Render)
+server.on('upgrade', (request, socket, head) => {
+  // This is handled by ws library, but we log it for debugging
+  console.log('WebSocket upgrade request received');
+});
+
 // Middleware
 // CORS configuration - allow all origins in production, specific origins in development
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
